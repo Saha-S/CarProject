@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTORIA — Car Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-mark">M</span>
+      <span class="logo-text">OTORIA</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-view="gallery">FLEET</button>
+      <button class="nav-btn" data-view="compare">COMPARE</button>
+      <button class="nav-btn" data-view="manufacturers">MAKERS</button>
+      <button class="nav-btn" data-view="recommendations">FOR YOU</button>
+    </nav>
+    <div class="header-accent"></div>
+  </div>
+</header>
+
+<!-- Hero section -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-label">THE ULTIMATE</p>
+    <h1 class="hero-title">CAR<br>EXPLORER</h1>
+    <p class="hero-sub">10 models · 10 manufacturers · precision data</p>
+  </div>
+  <div class="hero-ticker" id="hero-ticker">
+    <span>TOYOTA COROLLA · HONDA CIVIC · BMW 3 SERIES · AUDI A4 · MERCEDES E-CLASS · FORD F-150 · CHEVROLET SILVERADO · HYUNDAI SONATA · LEXUS RX · NISSAN ALTIMA · </span>
+    <span>TOYOTA COROLLA · HONDA CIVIC · BMW 3 SERIES · AUDI A4 · MERCEDES E-CLASS · FORD F-150 · CHEVROLET SILVERADO · HYUNDAI SONATA · LEXUS RX · NISSAN ALTIMA · </span>
+  </div>
+</section>
+
+<!-- ── GALLERY VIEW ── -->
+<main class="view active" id="view-gallery">
+
+  <!-- Search & Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" class="search-input" placeholder="Search models, engines, drivetrains...">
+    </div>
+    <div class="filters">
+      <select class="filter-select" id="filter-category">
+        <option value="">All Categories</option>
+      </select>
+      <select class="filter-select" id="filter-manufacturer">
+        <option value="">All Makers</option>
+      </select>
+      <select class="filter-select" id="filter-sort">
+        <option value="">Sort: Default</option>
+        <option value="hp_desc">HP: High → Low</option>
+        <option value="hp_asc">HP: Low → High</option>
+        <option value="year_desc">Year: Newest</option>
+        <option value="year_asc">Year: Oldest</option>
+        <option value="name">Name: A–Z</option>
+      </select>
+      <div class="hp-range">
+        <label class="range-label">HP <span id="hp-display">0–500</span></label>
+        <div class="range-row">
+          <input type="range" id="hp-min" min="0" max="500" value="0" step="10">
+          <input type="range" id="hp-max" min="0" max="500" value="500" step="10">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Car Grid -->
+  <div class="car-grid" id="car-grid">
+    <!-- Populated by JS -->
+  </div>
+  <p class="no-results hidden" id="no-results">No vehicles match your search.</p>
+</main>
+
+<!-- ── COMPARE VIEW ── -->
+<main class="view" id="view-compare">
+  <div class="compare-header">
+    <h2 class="section-title">SIDE-BY-SIDE COMPARISON</h2>
+    <p class="section-sub">Select up to 3 vehicles to compare</p>
+  </div>
+  <div class="compare-selector">
+    <div class="compare-slot" id="slot-0">
+      <div class="slot-label">Vehicle 1</div>
+      <select class="slot-select" data-slot="0"><option value="">— Choose —</option></select>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-slot" id="slot-1">
+      <div class="slot-label">Vehicle 2</div>
+      <select class="slot-select" data-slot="1"><option value="">— Choose —</option></select>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-slot" id="slot-2">
+      <div class="slot-label">Vehicle 3</div>
+      <select class="slot-select" data-slot="2"><option value="">— Choose —</option></select>
+    </div>
+  </div>
+  <button class="compare-btn" id="compare-btn">COMPARE NOW</button>
+  <div class="compare-table-wrap" id="compare-results"></div>
+</main>
+
+<!-- ── MANUFACTURERS VIEW ── -->
+<main class="view" id="view-manufacturers">
+  <h2 class="section-title">MANUFACTURERS</h2>
+  <div class="makers-grid" id="makers-grid"></div>
+  <div class="maker-detail hidden" id="maker-detail"></div>
+</main>
+
+<!-- ── RECOMMENDATIONS VIEW ── -->
+<main class="view" id="view-recommendations">
+  <div class="rec-header">
+    <h2 class="section-title">PERSONALISED FOR YOU</h2>
+    <p class="section-sub">Tell us your preferences and we'll find your perfect car</p>
+  </div>
+  <div class="pref-form">
+    <div class="pref-field">
+      <label class="pref-label">Preferred category</label>
+      <select class="filter-select" id="pref-category"><option value="">Any</option></select>
+    </div>
+    <div class="pref-field">
+      <label class="pref-label">Min horsepower</label>
+      <input type="number" class="pref-input" id="pref-minhp" placeholder="e.g. 200" min="0" max="500">
+    </div>
+    <div class="pref-field">
+      <label class="pref-label">Max horsepower</label>
+      <input type="number" class="pref-input" id="pref-maxhp" placeholder="e.g. 400" min="0" max="600">
+    </div>
+    <button class="compare-btn" id="get-recs-btn">FIND MY CARS</button>
+  </div>
+  <div class="rec-results" id="rec-results"></div>
+</main>
+
+<!-- ── CAR DETAIL MODAL ── -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-inner" id="modal-inner">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
