@@ -18,7 +18,16 @@ func main() {
 	}
 
 	var err error
-	tmpl, err = template.ParseGlob("templates/*.html")
+	funcs := template.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"mul": func(a, b float64) float64 {
+			return a * b
+		},
+	}
+	
+	tmpl, err = template.New("").Funcs(funcs).ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatalf("Failed to parse templates: %v", err)
 	}

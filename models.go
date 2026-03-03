@@ -20,10 +20,11 @@ type CarModel struct {
 }
 
 type Manufacturer struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	Country      string `json:"country"`
-	FoundingYear int    `json:"foundingYear"`
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Country      string     `json:"country"`
+	FoundingYear int        `json:"foundingYear"`
+	Models       []CarModel `json:"models,omitempty"`
 }
 
 type Category struct {

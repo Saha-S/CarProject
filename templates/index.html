@@ -13,15 +13,15 @@
 <!-- Header -->
 <header class="header">
   <div class="header-inner">
-    <div class="logo">
+    <a href="/?view=gallery" class="logo">
       <span class="logo-mark">M</span>
       <span class="logo-text">OTORIA</span>
-    </div>
+    </a>
     <nav class="nav">
-      <button class="nav-btn active" data-view="gallery">FLEET</button>
-      <button class="nav-btn" data-view="compare">COMPARE</button>
-      <button class="nav-btn" data-view="manufacturers">MAKERS</button>
-      <button class="nav-btn" data-view="recommendations">FOR YOU</button>
+      <a href="/?view=gallery" class="nav-btn {{if eq .View "gallery"}}active{{end}}">FLEET</a>
+      <a href="/?view=compare" class="nav-btn {{if eq .View "compare"}}active{{end}}">COMPARE</a>
+      <a href="/?view=manufacturers" class="nav-btn {{if eq .View "manufacturers"}}active{{end}}">MAKERS</a>
+      <a href="/?view=recommendations" class="nav-btn {{if eq .View "recommendations"}}active{{end}}">FOR YOU</a>
     </nav>
     <div class="header-accent"></div>
   </div>
@@ -41,113 +41,314 @@
 </section>
 
 <!-- ── GALLERY VIEW ── -->
+{{if or (eq .View "gallery") (eq .View "")}}
 <main class="view active" id="view-gallery">
 
   <!-- Search & Filter Bar -->
   <div class="filter-bar">
-    <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search-input" class="search-input" placeholder="Search models, engines, drivetrains...">
-    </div>
-    <div class="filters">
-      <select class="filter-select" id="filter-category">
-        <option value="">All Categories</option>
-      </select>
-      <select class="filter-select" id="filter-manufacturer">
-        <option value="">All Makers</option>
-      </select>
-      <select class="filter-select" id="filter-sort">
-        <option value="">Sort: Default</option>
-        <option value="hp_desc">HP: High → Low</option>
-        <option value="hp_asc">HP: Low → High</option>
-        <option value="year_desc">Year: Newest</option>
-        <option value="year_asc">Year: Oldest</option>
-        <option value="name">Name: A–Z</option>
-      </select>
-      <div class="hp-range">
-        <label class="range-label">HP <span id="hp-display">0–500</span></label>
-        <div class="range-row">
-          <input type="range" id="hp-min" min="0" max="500" value="0" step="10">
-          <input type="range" id="hp-max" min="0" max="500" value="500" step="10">
+    <form method="get" class="filters-form" style="width:100%;">
+      <input type="hidden" name="view" value="gallery">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" name="q" class="search-input" placeholder="Search models, engines, drivetrains..." value="{{.Query}}">
+      </div>
+      <div class="filters">
+        <select class="filter-select" name="category">
+          <option value="">All Categories</option>
+          {{range .Categories}}<option value="{{.Name}}" {{if eq .Name $.SelectedCategory}}selected{{end}}>{{.Name}}</option>{{end}}
+        </select>
+        <select class="filter-select" name="manufacturer">
+          <option value="">All Makers</option>
+          {{range .Manufacturers}}<option value="{{.Name}}" {{if eq .Name $.SelectedManufacturer}}selected{{end}}>{{.Name}}</option>{{end}}
+        </select>
+        <select class="filter-select" name="sort">
+          <option value="">Sort: Default</option>
+          <option value="hp_desc" {{if eq .Sort "hp_desc"}}selected{{end}}>HP: High → Low</option>
+          <option value="hp_asc" {{if eq .Sort "hp_asc"}}selected{{end}}>HP: Low → High</option>
+          <option value="year_desc" {{if eq .Sort "year_desc"}}selected{{end}}>Year: Newest</option>
+          <option value="year_asc" {{if eq .Sort "year_asc"}}selected{{end}}>Year: Oldest</option>
+          <option value="name" {{if eq .Sort "name"}}selected{{end}}>Name: A–Z</option>
+        </select>
+        <div class="hp-range">
+          <label class="range-label">HP <span id="hp-display">{{.MinHP}}–{{if .MaxHP}}{{.MaxHP}}{{else}}500{{end}}</span></label>
+          <div class="range-row">
+            <input type="range" name="minHP" min="0" max="500" value="{{.MinHP}}" step="10">
+            <input type="range" name="maxHP" min="0" max="500" value="{{if .MaxHP}}{{.MaxHP}}{{else}}500{{end}}" step="10">
+          </div>
         </div>
       </div>
-    </div>
+      <button type="submit" class="compare-btn" style="padding:0.5rem 1rem;font-size:0.8rem;">APPLY FILTERS</button>
+    </form>
   </div>
 
   <!-- Car Grid -->
   <div class="car-grid" id="car-grid">
-    <!-- Populated by JS -->
+    {{if .Cars}}
+      {{range $i, $car := .Cars}}
+      <div class="car-card" data-id="{{$car.ID}}">
+        <div class="card-img-wrap">
+          {{if $car.Image}}
+            <img class="card-img" src="/static/img/{{$car.Image}}" alt="{{$car.Name}}">
+          {{else}}
+            <div class="card-img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l5 5v5h-2m-7 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/></svg></div>
+          {{end}}
+          <a href="/?view=detail&id={{$car.ID}}" class="card-overlay"><span class="card-overlay-text">VIEW DETAILS →</span></a>
+          <span class="card-badge">{{$car.CategoryName}}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-category">{{$car.CategoryName}}</div>
+          <div class="card-name">{{$car.Name}}</div>
+          <div class="card-specs">
+            <div class="spec-item">
+              <span class="spec-label">Engine</span>
+              <span class="spec-value">{{$car.Specifications.Engine}}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Power</span>
+              <span class="spec-value hp">{{$car.Specifications.Horsepower}} HP</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Transmission</span>
+              <span class="spec-value">{{$car.Specifications.Transmission}}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Drivetrain</span>
+              <span class="spec-value">{{$car.Specifications.Drivetrain}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">{{$car.Year}}</span>
+          <span class="card-maker">{{$car.ManufacturerName}}</span>
+        </div>
+      </div>
+      {{end}}
+    {{else}}
+      <p class="no-results" id="no-results">No vehicles match your search.</p>
+    {{end}}
   </div>
-  <p class="no-results hidden" id="no-results">No vehicles match your search.</p>
 </main>
+{{end}}
+
 
 <!-- ── COMPARE VIEW ── -->
-<main class="view" id="view-compare">
+{{if eq .View "compare"}}
+<main class="view active" id="view-compare">
   <div class="compare-header">
     <h2 class="section-title">SIDE-BY-SIDE COMPARISON</h2>
-    <p class="section-sub">Select up to 3 vehicles to compare</p>
+    <p class="section-sub">Select vehicles to compare</p>
   </div>
-  <div class="compare-selector">
-    <div class="compare-slot" id="slot-0">
-      <div class="slot-label">Vehicle 1</div>
-      <select class="slot-select" data-slot="0"><option value="">— Choose —</option></select>
+  <form method="get" class="compare-form" style="display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap;margin:2rem;padding:1rem;background:var(--bg-secondary);border-radius:8px;">
+    <input type="hidden" name="view" value="compare">
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+        <option value="">Vehicle 1</option>
+        {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
+      </select>
     </div>
-    <div class="compare-vs">VS</div>
-    <div class="compare-slot" id="slot-1">
-      <div class="slot-label">Vehicle 2</div>
-      <select class="slot-select" data-slot="1"><option value="">— Choose —</option></select>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+        <option value="">Vehicle 2</option>
+        {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
+      </select>
     </div>
-    <div class="compare-vs">VS</div>
-    <div class="compare-slot" id="slot-2">
-      <div class="slot-label">Vehicle 3</div>
-      <select class="slot-select" data-slot="2"><option value="">— Choose —</option></select>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+        <option value="">Vehicle 3</option>
+        {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
+      </select>
     </div>
+    <button type="submit" class="compare-btn" style="padding:0.5rem 1rem;font-size:0.8rem;">COMPARE</button>
+  </form>
+  <div class="compare-table-wrap" id="compare-results">
+    {{if .CompareResults}}
+      {{if ge (len .CompareResults) 2}}
+        {{$cars := .CompareResults}}
+        {{$maxHP := 0}}
+        {{$minHP := 999}}
+        {{$maxYear := 0}}
+        {{range $cars}}
+          {{if gt .Specifications.Horsepower $maxHP}}{{$maxHP = .Specifications.Horsepower}}{{end}}
+          {{if lt .Specifications.Horsepower $minHP}}{{$minHP = .Specifications.Horsepower}}{{end}}
+          {{if gt .Year $maxYear}}{{$maxYear = .Year}}{{end}}
+        {{end}}
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Spec</th>
+              {{range $cars}}<th><div class="car-col-header">{{.Name}}<small>{{.Year}}</small></div></th>{{end}}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Photo</td>
+              {{range $cars}}<td>{{if .Image}}<img class="thumb" src="/static/img/{{.Image}}" alt="{{.Name}}" style="max-width:80px;max-height:60px;">{{else}}—{{end}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Category</td>
+              {{range $cars}}<td>{{.Category.Name}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Manufacturer</td>
+              {{range $cars}}<td>{{.Manufacturer.Name}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Year</td>
+              {{range $cars}}<td {{if eq .Year $maxYear}}class="best-value"{{end}}>{{.Year}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Engine</td>
+              {{range $cars}}<td>{{.Specifications.Engine}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Horsepower</td>
+              {{range $cars}}
+                <td {{if eq .Specifications.Horsepower $maxHP}}class="best-value"{{else if eq .Specifications.Horsepower $minHP}}class="worst-value"{{end}}>{{.Specifications.Horsepower}} HP</td>
+              {{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Transmission</td>
+              {{range $cars}}<td>{{.Specifications.Transmission}}</td>{{end}}
+            </tr>
+            <tr>
+              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Drivetrain</td>
+              {{range $cars}}<td>{{.Specifications.Drivetrain}}</td>{{end}}
+            </tr>
+          </tbody>
+        </table>
+      {{else}}
+        <p style="font-family:var(--font-mono);color:var(--accent);font-size:0.8rem;padding:1rem;letter-spacing:.1em;">SELECT AT LEAST 2 VEHICLES</p>
+      {{end}}
+    {{end}}
   </div>
-  <button class="compare-btn" id="compare-btn">COMPARE NOW</button>
-  <div class="compare-table-wrap" id="compare-results"></div>
 </main>
+{{end}}
+
 
 <!-- ── MANUFACTURERS VIEW ── -->
-<main class="view" id="view-manufacturers">
+{{if eq .View "manufacturers"}}
+<main class="view active" id="view-manufacturers">
   <h2 class="section-title">MANUFACTURERS</h2>
-  <div class="makers-grid" id="makers-grid"></div>
-  <div class="maker-detail hidden" id="maker-detail"></div>
+  <div class="makers-grid" id="makers-grid">
+    {{range .Manufacturers}}
+    <div class="maker-card">
+      <div class="maker-name">{{.Name}}</div>
+      <div class="maker-meta">
+        <span class="maker-country">{{.Country}}</span> · Est. {{.FoundingYear}}
+      </div>
+      <div class="maker-models" style="margin-top:1rem;font-size:0.8rem;color:var(--text-dim);">
+        <div style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;margin-bottom:0.5rem;text-transform:uppercase">MODELS ({{len .Models}})</div>
+        {{range .Models}}
+          <a href="/?view=detail&id={{.ID}}" style="display:block;color:var(--accent);text-decoration:none;padding:0.25rem 0;">{{.Name}} ({{.Year}})</a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </div>
 </main>
+{{end}}
+
 
 <!-- ── RECOMMENDATIONS VIEW ── -->
-<main class="view" id="view-recommendations">
+{{if eq .View "recommendations"}}
+<main class="view active" id="view-recommendations">
   <div class="rec-header">
     <h2 class="section-title">PERSONALISED FOR YOU</h2>
     <p class="section-sub">Tell us your preferences and we'll find your perfect car</p>
   </div>
-  <div class="pref-form">
+  <form method="get" class="pref-form">
+    <input type="hidden" name="view" value="recommendations">
     <div class="pref-field">
       <label class="pref-label">Preferred category</label>
-      <select class="filter-select" id="pref-category"><option value="">Any</option></select>
+      <select class="filter-select" name="category">
+        <option value="">Any</option>
+        {{range .Categories}}<option value="{{.Name}}" {{if eq .Name $.SelectedCategory}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
     </div>
     <div class="pref-field">
       <label class="pref-label">Min horsepower</label>
-      <input type="number" class="pref-input" id="pref-minhp" placeholder="e.g. 200" min="0" max="500">
+      <input type="number" class="pref-input" name="minHP" placeholder="e.g. 200" min="0" max="500" value="{{.SelectedMinHP}}">
     </div>
     <div class="pref-field">
       <label class="pref-label">Max horsepower</label>
-      <input type="number" class="pref-input" id="pref-maxhp" placeholder="e.g. 400" min="0" max="600">
+      <input type="number" class="pref-input" name="maxHP" placeholder="e.g. 400" min="0" max="600" value="{{.SelectedMaxHP}}">
     </div>
-    <button class="compare-btn" id="get-recs-btn">FIND MY CARS</button>
+    <button type="submit" class="compare-btn">FIND MY CARS</button>
+  </form>
+  <div class="rec-results" id="rec-results">
+    {{if .Recommendations}}
+      {{range $i, $r := .Recommendations}}
+      <div class="rec-card" data-id="{{$r.Car.ID}}">
+        <div class="rec-rank">0{{add $i 1}}</div>
+        <a href="/?view=detail&id={{$r.Car.ID}}" style="text-decoration:none;color:inherit;">
+          <div class="rec-name">{{$r.Car.Name}}</div>
+          <div class="rec-reason">{{$r.Reason}}</div>
+          <div class="rec-hp">{{$r.Car.Specifications.Horsepower}} <span>HP · {{$r.Car.Year}}</span></div>
+        </a>
+      </div>
+      {{end}}
+    {{end}}
   </div>
-  <div class="rec-results" id="rec-results"></div>
 </main>
+{{end}}
 
-<!-- ── CAR DETAIL MODAL ── -->
-<div class="modal-overlay hidden" id="modal-overlay">
-  <div class="modal" id="modal">
-    <button class="modal-close" id="modal-close">✕</button>
-    <div class="modal-inner" id="modal-inner">
-      <!-- filled by JS -->
-    </div>
+
+<!-- ── DETAIL VIEW ── -->
+{{if eq .View "detail"}}
+<main class="view active">
+  <div style="max-width:900px;margin:0 auto;padding:2rem;">
+    {{if .DetailCar}}
+      <a href="/?view=gallery" style="color:var(--accent);text-decoration:none;margin-bottom:2rem;display:inline-block;">← Back to Gallery</a>
+      <div class="modal-hero" style="margin:2rem 0;">
+        {{if .DetailCar.Image}}
+          <img class="modal-hero-img" src="/static/img/{{.DetailCar.Image}}" alt="{{.DetailCar.Name}}" style="max-width:100%;height:auto;">
+        {{end}}
+        <div class="modal-hero-content" style="margin-top:1rem;">
+          <div class="modal-category">{{.DetailCar.Category.Name}}</div>
+          <div class="modal-name">{{.DetailCar.Name}}</div>
+        </div>
+      </div>
+      <div class="modal-body" style="margin:2rem 0;">
+        <div class="modal-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.5rem;margin:2rem 0;">
+          <div class="modal-stat">
+            <div class="modal-stat-label">Horsepower</div>
+            <div class="modal-stat-value big">{{.DetailCar.Specifications.Horsepower}}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Year</div>
+            <div class="modal-stat-value big">{{.DetailCar.Year}}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Engine</div>
+            <div class="modal-stat-value">{{.DetailCar.Specifications.Engine}}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Transmission</div>
+            <div class="modal-stat-value">{{.DetailCar.Specifications.Transmission}}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Drivetrain</div>
+            <div class="modal-stat-value">{{.DetailCar.Specifications.Drivetrain}}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Category</div>
+            <div class="modal-stat-value">{{.DetailCar.Category.Name}}</div>
+          </div>
+        </div>
+        {{if .DetailCar.Manufacturer}}
+        <div class="modal-maker-section" style="margin:2rem 0;padding:1.5rem;background:var(--bg-secondary);border-radius:8px;">
+          <div class="modal-maker-title">MANUFACTURER</div>
+          <div class="modal-maker-name" style="font-size:1.75rem;margin:0.5rem 0;">{{.DetailCar.Manufacturer.Name}}</div>
+          <div class="modal-maker-meta" style="font-size:0.9rem;color:var(--text-dim);">
+            {{.DetailCar.Manufacturer.Country}} · Est. {{.DetailCar.Manufacturer.FoundingYear}}
+          </div>
+        </div>
+        {{end}}
+      </div>
+    {{end}}
   </div>
-</div>
+</main>
+{{end}}
 
-<script src="/static/js/app.js"></script>
 </body>
 </html>
