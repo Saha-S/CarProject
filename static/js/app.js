@@ -346,9 +346,7 @@ document.addEventListener('keydown', e => {
 
 // ── Compare ────────────────────────────────────────────────────────────────
 $('compare-btn').addEventListener('click', async () => {
-  const ids = $$('.slot-select')
-    .values()
-    .filter(s => s.value)
+  const ids = Array.from($$('.slot-select'))
     .map(s => s.value)
     .filter(Boolean);
 

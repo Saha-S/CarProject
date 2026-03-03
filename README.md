@@ -1,136 +1,99 @@
 # MOTORIA — Cars Viewer
 
-A sleek, production-quality car explorer built with **Go** (backend) and vanilla **HTML/CSS/JS** (frontend).
+A car explorer web app built with Go (backend) and vanilla HTML/CSS/JS (frontend).
 
----
+## Overview
 
-## Project Overview
+The app loads car data from a local `data.json` file and serves:
 
-MOTORIA fetches and displays car model data from a provided Cars API resource. It features:
+- Fleet gallery with search and filters
+- Car detail modal with manufacturer and category details
+- Side-by-side comparison (up to 3 cars)
+- Manufacturer profiles with their models
+- Preference-based recommendations
 
-- **Fleet Gallery** — browse all 10 car models with live search & filtering
-- **Car Detail Modal** — click any card to load full specs + manufacturer info from the server
-- **Side-by-Side Comparison** — compare up to 3 vehicles with highlighted best/worst values
-- **Manufacturers View** — browse makers and see their model lineup
-- **Personalised Recommendations** — get AI-scored suggestions based on your HP/category preferences and past views
+## Requirements
 
----
+- Go 1.21+
+- A valid data file (default: `data.json` in this repository)
+- Optional: car images inside `static/img/`
 
-## Setup & Installation
+## Run
 
-### Prerequisites
-
-- [Go 1.21+](https://go.dev/dl/)
-- The Cars API (`api/` folder from the original zip, running separately OR just its `data.json`)
-
-### Installation
+From the project root:
 
 ```bash
-# Clone/copy this project directory
-cd cars-viewer
+go run .
+```
 
-# Build the binary
+The server starts on `http://localhost:8080`.
+
+### Optional run modes
+
+```bash
+# Run with a custom data file path
+go run . ./data.json
+
+# Run on a custom port
+PORT=9000 go run .
+
+# Build and run binary
 go build -o cars-viewer .
-
-# Run (pointing to the data.json from the Cars API)
-./cars-viewer ../api/data.json
+./cars-viewer
 ```
-
-Or use the Makefile:
-
-```bash
-make run        # uses ../api/data.json on port 8080
-make dev        # same, with custom PORT
-PORT=9000 make dev
-```
-
-Then open: **http://localhost:8080**
-
----
 
 ## Project Structure
 
 ```
-cars-viewer/
-├── main.go              # Go backend — routes, handlers, data loading
-├── go.mod               # Module file (no external dependencies)
-├── Makefile             # Build & run shortcuts
+.
+├── main.go               # bootstrap: startup, template load, route wiring
+├── models.go             # data models + shared app state
+├── data.go               # data.json loading
+├── helpers.go            # lookup helpers (car/manufacturer/category)
+├── handlers_api.go       # all /api handlers
+├── handlers_page.go      # page/template handlers
+├── go.mod
+├── data.json
 ├── templates/
-│   └── index.html       # Main HTML template
-├── static/
-│   ├── css/style.css    # All styles (industrial-luxury aesthetic)
-│   ├── js/app.js        # Frontend logic (search, modal, compare, recs)
-│   └── img/             # Car images (copy from api/img/)
-└── README.md
+│   └── index.html
+└── static/
+    ├── css/style.css
+    ├── js/app.js
+    └── img/
 ```
 
-> **Note:** Copy the `img/` folder from the API's directory into `static/img/`:
-> ```bash
-> cp -r ../api/img/ static/img/
-> ```
+### Backend file layout
 
----
+- `main.go`: app entrypoint and HTTP route registration
+- `models.go`: structs (`CarModel`, `Manufacturer`, `Category`) and globals
+- `data.go`: `loadData()` for JSON parsing
+- `helpers.go`: reusable ID lookup helpers
+- `handlers_api.go`: JSON API endpoints (`/api/*`)
+- `handlers_page.go`: HTML page handler (`/`)
 
-## Usage Guide
-
-### Fleet (Gallery)
-- Browse all car models as cards with key specs
-- **Search** by name, engine, manufacturer, or drivetrain
-- **Filter** by category, manufacturer, sort order
-- **HP slider** to filter by horsepower range
-- Click any card to open the detail modal (fetches fresh data from server)
-
-### Compare
-- Click **+ COMPARE** on any card to add it to the comparison queue (up to 3)
-- Switch to the **COMPARE** tab and click **COMPARE NOW**
-- The table highlights the best value (green) and worst (red) for HP and year
-
-### Makers
-- Click any manufacturer to see their profile and models
-- Click a model to open its detail modal
-
-### For You (Recommendations)
-- Set your preferred category and HP range
-- Click **FIND MY CARS** to get personalised, ranked suggestions
-- Score is based on: category match, HP range fit, model year, and view history
-
----
-
-## API Endpoints (served by Go)
+## API Endpoints
 
 | Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/models` | All car models |
-| GET | `/api/models/{id}` | Single car with manufacturer & category |
-| GET | `/api/manufacturers` | All manufacturers |
-| GET | `/api/manufacturers/{id}` | Manufacturer + their models |
-| GET | `/api/categories` | All categories |
-| GET | `/api/categories/{id}` | Category + their models |
-| GET | `/api/search` | Filtered/sorted car search |
-| GET | `/api/compare?ids=1,2,3` | Compare multiple cars |
-| GET | `/api/recommendations` | Personalised recommendations |
+|---|---|---|
+| GET | `/api/models` | List all car models |
+| GET | `/api/models/{id}` | Get one model with manufacturer and category |
+| GET | `/api/manufacturers` | List manufacturers |
+| GET | `/api/manufacturers/{id}` | Manufacturer with its models |
+| GET | `/api/categories` | List categories |
+| GET | `/api/categories/{id}` | Category with its models |
+| GET | `/api/search` | Search/filter/sort models |
+| GET | `/api/compare?ids=1,2,3` | Compare selected models |
+| GET | `/api/recommendations` | Get top recommendations |
 
-### Search query params
-- `q` — text search
-- `category` — category name
-- `manufacturer` — manufacturer name
-- `minHP` / `maxHP` — horsepower range
-- `minYear` / `maxYear` — year range
-- `sort` — `hp_desc`, `hp_asc`, `year_desc`, `year_asc`, `name`
+### `/api/search` query params
 
----
+- `q`
+- `category`
+- `manufacturer`
+- `minHP`, `maxHP`
+- `minYear`, `maxYear`
+- `sort`: `hp_desc`, `hp_asc`, `year_desc`, `year_asc`, `name`
 
-## Extra Features Implemented
+## Notes
 
-- ✅ **Advanced Filtering** — full-text search + category/manufacturer/HP/year/sort filters
-- ✅ **Comparisons** — side-by-side table with up to 3 cars, visual best/worst highlighting
-- ✅ **Personalised Recommendations** — scored algorithm using view history, category match, HP fit, and year
-
----
-
-## Technology Stack
-
-- **Backend**: Go standard library only (`net/http`, `encoding/json`, `html/template`) — zero external dependencies
-- **Frontend**: Vanilla HTML + CSS + JS — no frameworks, no build step
-- **Fonts**: Bebas Neue (display), DM Sans (body), DM Mono (data) via Google Fonts
-- **Data**: JSON served from Go's in-memory parsed data structure
+- If images are missing in `static/img/`, the UI still works and shows placeholders.
