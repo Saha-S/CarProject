@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -259,5 +260,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	tmpl.ExecuteTemplate(w, "index.html", data)
+	if err := tmpl.ExecuteTemplate(w, "index.html", data); err != nil {
+		// Log the error but don't expose internal details to the user
+		log.Printf("Error rendering template: %v", err)
+		serveError(w, http.StatusInternalServerError, "")
+	}
 }

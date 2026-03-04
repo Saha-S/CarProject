@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"path"
@@ -94,7 +95,9 @@ func imageProxyHandler(w http.ResponseWriter, r *http.Request) {
 		if cacheControl := resp.Header.Get("Cache-Control"); cacheControl != "" {
 			w.Header().Set("Cache-Control", cacheControl)
 		}
-		_, _ = io.Copy(w, resp.Body)
+		if _, err := io.Copy(w, resp.Body); err != nil {
+			log.Printf("Error copying image response: %v", err)
+		}
 		resp.Body.Close()
 		return
 	}

@@ -821,7 +821,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .modal-hero {
   position: relative;
-  height: 300px;
+  height: 500px;
   overflow: hidden;
   background: var(--bg3);
 }

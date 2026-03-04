@@ -52,6 +52,9 @@ func main() {
 
 	http.HandleFunc("/", indexHandler)
 
+	// Wrap all handlers with panic recovery
+	handler := recoveryMiddleware(http.DefaultServeMux)
+
 	log.Printf("🚗 Cars Viewer running on http://localhost:%s (API: %s)", port, apiBaseURL)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
