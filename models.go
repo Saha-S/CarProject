@@ -41,3 +41,4 @@ type Database struct {
 var viewCounts = map[int]int{}
 var db Database
 var tmpl *template.Template
+var apiBaseURL string

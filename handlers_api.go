@@ -97,32 +97,34 @@ func apiCategoryByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiCompare(w http.ResponseWriter, r *http.Request) {
-	idsStr := r.URL.Query().Get("ids")
-	if idsStr == "" {
+	idsValues := r.URL.Query()["ids"]
+	if len(idsValues) == 0 {
 		http.Error(w, "ids param required", http.StatusBadRequest)
 		return
 	}
-	parts := strings.Split(idsStr, ",")
+
 	type CompareEntry struct {
 		CarModel
 		Manufacturer *Manufacturer `json:"manufacturer"`
 		Category     *Category     `json:"category"`
 	}
 	var result []CompareEntry
-	for _, p := range parts {
-		id, err := strconv.Atoi(strings.TrimSpace(p))
-		if err != nil {
-			continue
+	for _, raw := range idsValues {
+		for _, p := range strings.Split(raw, ",") {
+			id, err := strconv.Atoi(strings.TrimSpace(p))
+			if err != nil {
+				continue
+			}
+			car := carByID(id)
+			if car == nil {
+				continue
+			}
+			result = append(result, CompareEntry{
+				CarModel:     *car,
+				Manufacturer: manufacturerByID(car.ManufacturerID),
+				Category:     categoryByID(car.CategoryID),
+			})
 		}
-		car := carByID(id)
-		if car == nil {
-			continue
-		}
-		result = append(result, CompareEntry{
-			CarModel:     *car,
-			Manufacturer: manufacturerByID(car.ManufacturerID),
-			Category:     categoryByID(car.CategoryID),
-		})
 	}
 	jsonResponse(w, result)
 }

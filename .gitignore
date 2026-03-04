@@ -1,0 +1,11 @@
+# Go
+cars-viewer
+*.exe
+*.out
+
+# Node
+api/node_modules/
+
+# OS/editor
+.DS_Store
+Thumbs.db

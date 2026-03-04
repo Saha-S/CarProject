@@ -1,0 +1,13 @@
+{
+  "name": "cars-viewer-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API server for Cars Viewer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

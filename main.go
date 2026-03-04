@@ -8,13 +8,13 @@ import (
 )
 
 func main() {
-	dataPath := "data.json"
-	if len(os.Args) > 1 {
-		dataPath = os.Args[1]
+	apiBaseURL = os.Getenv("API_BASE_URL")
+	if apiBaseURL == "" {
+		apiBaseURL = "http://localhost:3000"
 	}
 
-	if err := loadData(dataPath); err != nil {
-		log.Fatalf("Failed to load data: %v", err)
+	if err := loadDataFromAPI(apiBaseURL); err != nil {
+		log.Fatalf("Failed to load data from API (%s): %v", apiBaseURL, err)
 	}
 
 	var err error
@@ -26,7 +26,7 @@ func main() {
 			return a * b
 		},
 	}
-	
+
 	tmpl, err = template.New("").Funcs(funcs).ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatalf("Failed to parse templates: %v", err)
@@ -38,6 +38,7 @@ func main() {
 	}
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.HandleFunc("/static/img/", imageProxyHandler)
 
 	http.HandleFunc("/api/models", apiModels)
 	http.HandleFunc("/api/models/", apiModelByID)
@@ -51,6 +52,6 @@ func main() {
 
 	http.HandleFunc("/", indexHandler)
 
-	log.Printf("🚗 Cars Viewer running on http://localhost:%s", port)
+	log.Printf("🚗 Cars Viewer running on http://localhost:%s (API: %s)", port, apiBaseURL)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

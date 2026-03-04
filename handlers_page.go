@@ -14,7 +14,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"View":           view,
+		"View":          view,
 		"Categories":    db.Categories,
 		"Manufacturers": db.Manufacturers,
 	}
@@ -27,6 +27,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		minHPStr := r.URL.Query().Get("minHP")
 		maxHPStr := r.URL.Query().Get("maxHP")
 		sortBy := r.URL.Query().Get("sort")
+
+		if minHPStr == "" {
+			minHPStr = "0"
+		}
+		if maxHPStr == "" {
+			maxHPStr = "500"
+		}
 
 		type EnrichedCar struct {
 			CarModel
@@ -63,17 +70,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if minHPStr != "" {
-				minHP, _ := strconv.Atoi(minHPStr)
-				if car.Specifications.Horsepower < minHP {
-					continue
-				}
+			minHP, _ := strconv.Atoi(minHPStr)
+			if car.Specifications.Horsepower < minHP {
+				continue
 			}
-			if maxHPStr != "" {
-				maxHP, _ := strconv.Atoi(maxHPStr)
-				if car.Specifications.Horsepower > maxHP {
-					continue
-				}
+			maxHP, _ := strconv.Atoi(maxHPStr)
+			if car.Specifications.Horsepower > maxHP {
+				continue
 			}
 
 			results = append(results, EnrichedCar{car, mfrName, catName})
@@ -202,29 +205,30 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle compare view
 	if view == "compare" {
-		idsStr := r.URL.Query().Get("ids")
-		if idsStr != "" {
-			parts := strings.Split(idsStr, ",")
+		idsValues := r.URL.Query()["ids"]
+		if len(idsValues) > 0 {
 			type CompareEntry struct {
 				CarModel
 				Manufacturer *Manufacturer
 				Category     *Category
 			}
 			var result []CompareEntry
-			for _, p := range parts {
-				id, err := strconv.Atoi(strings.TrimSpace(p))
-				if err != nil {
-					continue
+			for _, raw := range idsValues {
+				for _, p := range strings.Split(raw, ",") {
+					id, err := strconv.Atoi(strings.TrimSpace(p))
+					if err != nil {
+						continue
+					}
+					car := carByID(id)
+					if car == nil {
+						continue
+					}
+					result = append(result, CompareEntry{
+						CarModel:     *car,
+						Manufacturer: manufacturerByID(car.ManufacturerID),
+						Category:     categoryByID(car.CategoryID),
+					})
 				}
-				car := carByID(id)
-				if car == nil {
-					continue
-				}
-				result = append(result, CompareEntry{
-					CarModel:     *car,
-					Manufacturer: manufacturerByID(car.ManufacturerID),
-					Category:     categoryByID(car.CategoryID),
-				})
 			}
 			data["CompareResults"] = result
 		}
