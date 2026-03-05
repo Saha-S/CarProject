@@ -1,11 +1,4 @@
 /* ─── RESET & VARIABLES ─────────────────────────────────────────────────── */
-/* 
- * DESIGN SYSTEM - Color Variables
- * All colors are defined in :root for consistency and maintainability.
- * To update colors, modify the variables below and it applies everywhere.
- * Never use hardcoded hex values in the CSS - always use variables.
- * Example: instead of background: #c22e22, use background: var(--accent-dark)
- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
