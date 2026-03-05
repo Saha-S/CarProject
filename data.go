@@ -52,7 +52,15 @@ func fetchJSON(address string, target interface{}) error {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
-		return fmt.Errorf("%s: status %d: %s", address, resp.StatusCode, strings.TrimSpace(string(body)))
+		// Try to parse error as JSON to extract user-friendly message
+		var errorResp map[string]interface{}
+		if err := json.Unmarshal(body, &errorResp); err == nil {
+			if msg, ok := errorResp["message"].(string); ok && msg != "" {
+				return fmt.Errorf("service error: %s", msg)
+			}
+		}
+		// Fallback to generic error message
+		return fmt.Errorf("data service returned error %d", resp.StatusCode)
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(target); err != nil {

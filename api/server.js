@@ -28,8 +28,7 @@ app.get("/api/manufacturers", (_, res) => {
   } catch (err) {
     console.error("Error loading manufacturers:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load manufacturers. Please try again later.",
+      message: "We're having trouble loading the manufacturer data. Please try again shortly.",
     });
   }
 });
@@ -39,20 +38,19 @@ app.get("/api/manufacturers/:id", (req, res) => {
     const db = loadData();
     const id = toInt(req.params.id);
     if (id === null) {
-      res.status(400).json({ error: "invalid id" });
+      res.status(400).json({ message: "Invalid manufacturer ID." });
       return;
     }
     const manufacturer = (db.manufacturers || []).find((m) => m.id === id);
     if (!manufacturer) {
-      res.status(404).json({ error: "not found" });
+      res.status(404).json({ message: "Manufacturer not found." });
       return;
     }
     res.json(manufacturer);
   } catch (err) {
     console.error("Error loading manufacturer:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load manufacturer. Please try again later.",
+      message: "We're having trouble loading manufacturer details. Please try again shortly.",
     });
   }
 });
@@ -64,8 +62,7 @@ app.get("/api/categories", (_, res) => {
   } catch (err) {
     console.error("Error loading categories:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load categories. Please try again later.",
+      message: "We're having trouble loading the category data. Please try again shortly.",
     });
   }
 });
@@ -75,20 +72,19 @@ app.get("/api/categories/:id", (req, res) => {
     const db = loadData();
     const id = toInt(req.params.id);
     if (id === null) {
-      res.status(400).json({ error: "invalid id" });
+      res.status(400).json({ message: "Invalid category ID." });
       return;
     }
     const category = (db.categories || []).find((c) => c.id === id);
     if (!category) {
-      res.status(404).json({ error: "not found" });
+      res.status(404).json({ message: "Category not found." });
       return;
     }
     res.json(category);
   } catch (err) {
     console.error("Error loading category:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load category. Please try again later.",
+      message: "We're having trouble loading category details. Please try again shortly.",
     });
   }
 });
@@ -100,8 +96,7 @@ app.get("/api/models", (_, res) => {
   } catch (err) {
     console.error("Error loading models:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load car models. Please try again later.",
+      message: "We're having trouble loading the car models. Please try again shortly.",
     });
   }
 });
@@ -113,8 +108,7 @@ app.get("/api/cars", (_, res) => {
   } catch (err) {
     console.error("Error loading cars:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load cars. Please try again later.",
+      message: "We're having trouble loading the cars. Please try again shortly.",
     });
   }
 });
@@ -124,20 +118,19 @@ app.get("/api/models/:id", (req, res) => {
     const db = loadData();
     const id = toInt(req.params.id);
     if (id === null) {
-      res.status(400).json({ error: "invalid id" });
+      res.status(400).json({ message: "Invalid car ID." });
       return;
     }
     const model = (db.carModels || []).find((c) => c.id === id);
     if (!model) {
-      res.status(404).json({ error: "not found" });
+      res.status(404).json({ message: "Car not found." });
       return;
     }
     res.json(model);
   } catch (err) {
     console.error("Error loading model:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to load car model. Please try again later.",
+      message: "We're having trouble loading car details. Please try again shortly.",
     });
   }
 });
@@ -146,15 +139,14 @@ app.get("/api/images/:file", (req, res) => {
   try {
     const imagePath = path.join(imagesDir, path.basename(req.params.file));
     if (!fs.existsSync(imagePath)) {
-      res.status(404).json({ error: "image not found" });
+      res.status(404).json({ message: "Image not found." });
       return;
     }
     res.sendFile(imagePath);
   } catch (err) {
     console.error("Error serving image:", err);
     res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to serve image. Please try again later.",
+      message: "We're having trouble loading the image. Please try again shortly.",
     });
   }
 });
@@ -163,14 +155,13 @@ app.get("/api/images/:file", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
   res.status(500).json({
-    error: "Internal Server Error",
-    message: "Something went wrong on the server. Our team has been notified and is working on a fix.",
+    message: "Something went wrong. Please refresh the page and try again.",
   });
 });
 
 // 404 handler for undefined routes
 app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+  res.status(404).json({ message: "The requested resource was not found." });
 });
 
 app.listen(port, () => {

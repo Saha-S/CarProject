@@ -46,7 +46,7 @@
 
   <!-- Search & Filter Bar -->
   <div class="filter-bar">
-    <form method="get" class="filters-form" style="width:100%;">
+    <form method="get" class="filters-form form-full-width">
       <input type="hidden" name="view" value="gallery">
       <div class="search-wrap">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -70,14 +70,13 @@
           <option value="name" {{if eq .Sort "name"}}selected{{end}}>Name: A–Z</option>
         </select>
         <div class="hp-range">
-          <label class="range-label">HP <span id="hp-display">{{.MinHP}}–{{if .MaxHP}}{{.MaxHP}}{{else}}500{{end}}</span></label>
-          <div class="range-row">
-            <input type="range" name="minHP" min="0" max="500" value="{{.MinHP}}" step="10">
-            <input type="range" name="maxHP" min="0" max="500" value="{{if .MaxHP}}{{.MaxHP}}{{else}}500{{end}}" step="10">
-          </div>
+          <label class="hp-label">HORSEPOWER</label>
+          <input type="number" name="minHP" min="0" max="500" placeholder="Min" class="hp-input" value="{{.MinHP}}">
+          <span class="range-separator">–</span>
+          <input type="number" name="maxHP" min="0" max="500" placeholder="Max" class="hp-input" value="{{if .MaxHP}}{{.MaxHP}}{{end}}">
         </div>
       </div>
-      <button type="submit" class="compare-btn" style="padding:0.5rem 1rem;font-size:0.8rem;">APPLY FILTERS</button>
+        <button type="submit" class="compare-btn form-button">APPLY FILTERS</button>
     </form>
   </div>
 
@@ -138,27 +137,27 @@
     <h2 class="section-title">SIDE-BY-SIDE COMPARISON</h2>
     <p class="section-sub">Select vehicles to compare</p>
   </div>
-  <form method="get" class="compare-form" style="display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap;margin:2rem;padding:1rem;background:var(--bg-secondary);border-radius:8px;">
+  <form method="get" class="compare-form compare-form-wrapper">
     <input type="hidden" name="view" value="compare">
-    <div style="display:flex;gap:0.5rem;align-items:center;">
-      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+    <div class="slot-select-wrapper">
+      <select name="ids" class="slot-select slot-select-styled">
         <option value="">Vehicle 1</option>
         {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
       </select>
     </div>
-    <div style="display:flex;gap:0.5rem;align-items:center;">
-      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+    <div class="slot-select-wrapper">
+      <select name="ids" class="slot-select slot-select-styled">
         <option value="">Vehicle 2</option>
         {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
       </select>
     </div>
-    <div style="display:flex;gap:0.5rem;align-items:center;">
-      <select name="ids" class="slot-select" style="padding:0.5rem;border-radius:4px;border:1px solid var(--border);">
+    <div class="slot-select-wrapper">
+      <select name="ids" class="slot-select slot-select-styled">
         <option value="">Vehicle 3</option>
         {{range .AllCars}}<option value="{{.ID}}">{{.Name}} ({{.Year}})</option>{{end}}
       </select>
     </div>
-    <button type="submit" class="compare-btn" style="padding:0.5rem 1rem;font-size:0.8rem;">COMPARE</button>
+    <button type="submit" class="compare-btn form-button">COMPARE</button>
   </form>
   <div class="compare-table-wrap" id="compare-results">
     {{if .CompareResults}}
@@ -181,43 +180,43 @@
           </thead>
           <tbody>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Photo</td>
-              {{range $cars}}<td>{{if .Image}}<img class="thumb" src="/static/img/{{.Image}}" alt="{{.Name}}" style="max-width:80px;max-height:60px;">{{else}}—{{end}}</td>{{end}}
+              <td class="compare-table-cell-label">Photo</td>
+              {{range $cars}}<td>{{if .Image}}<img class="thumb comp-table-thumb" src="/static/img/{{.Image}}" alt="{{.Name}}">{{else}}—{{end}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Category</td>
+              <td class="compare-table-cell-label">Category</td>
               {{range $cars}}<td>{{.Category.Name}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Manufacturer</td>
+              <td class="compare-table-cell-label">Manufacturer</td>
               {{range $cars}}<td>{{.Manufacturer.Name}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Year</td>
+              <td class="compare-table-cell-label">Year</td>
               {{range $cars}}<td {{if eq .Year $maxYear}}class="best-value"{{end}}>{{.Year}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Engine</td>
+              <td class="compare-table-cell-label">Engine</td>
               {{range $cars}}<td>{{.Specifications.Engine}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Horsepower</td>
+              <td class="compare-table-cell-label">Horsepower</td>
               {{range $cars}}
                 <td {{if eq .Specifications.Horsepower $maxHP}}class="best-value"{{else if eq .Specifications.Horsepower $minHP}}class="worst-value"{{end}}>{{.Specifications.Horsepower}} HP</td>
               {{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Transmission</td>
+              <td class="compare-table-cell-label">Transmission</td>
               {{range $cars}}<td>{{.Specifications.Transmission}}</td>{{end}}
             </tr>
             <tr>
-              <td style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Drivetrain</td>
+              <td class="compare-table-cell-label">Drivetrain</td>
               {{range $cars}}<td>{{.Specifications.Drivetrain}}</td>{{end}}
             </tr>
           </tbody>
         </table>
       {{else}}
-        <p style="font-family:var(--font-mono);color:var(--accent);font-size:0.8rem;padding:1rem;letter-spacing:.1em;">SELECT AT LEAST 2 VEHICLES</p>
+        <p class="no-results-msg">SELECT AT LEAST 2 VEHICLES</p>
       {{end}}
     {{end}}
   </div>
@@ -236,10 +235,10 @@
       <div class="maker-meta">
         <span class="maker-country">{{.Country}}</span> · Est. {{.FoundingYear}}
       </div>
-      <div class="maker-models" style="margin-top:1rem;font-size:0.8rem;color:var(--text-dim);">
-        <div style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;margin-bottom:0.5rem;text-transform:uppercase">MODELS ({{len .Models}})</div>
+      <div class="maker-models maker-models-section">
+        <div class="maker-models-title">MODELS ({{len .Models}})</div>
         {{range .Models}}
-          <a href="/?view=detail&id={{.ID}}" style="display:block;color:var(--accent);text-decoration:none;padding:0.25rem 0;">{{.Name}} ({{.Year}})</a>
+          <a href="/?view=detail&id={{.ID}}" class="maker-model-link">{{.Name}} ({{.Year}})</a>
         {{end}}
       </div>
     </div>
@@ -280,7 +279,7 @@
       {{range $i, $r := .Recommendations}}
       <div class="rec-card" data-id="{{$r.Car.ID}}">
         <div class="rec-rank">0{{add $i 1}}</div>
-        <a href="/?view=detail&id={{$r.Car.ID}}" style="text-decoration:none;color:inherit;">
+        <a href="/?view=detail&id={{$r.Car.ID}}" class="rec-link">
           <div class="rec-name">{{$r.Car.Name}}</div>
           <div class="rec-reason">{{$r.Reason}}</div>
           <div class="rec-hp">{{$r.Car.Specifications.Horsepower}} <span>HP · {{$r.Car.Year}}</span></div>
@@ -296,20 +295,20 @@
 <!-- ── DETAIL VIEW ── -->
 {{if eq .View "detail"}}
 <main class="view active">
-  <div style="max-width:900px;margin:0 auto;padding:2rem;">
+  <div class="detail-container">
     {{if .DetailCar}}
-      <a href="/?view=gallery" style="color:var(--accent);text-decoration:none;margin-bottom:2rem;display:inline-block;">← Back to Gallery</a>
-      <div class="modal-hero" style="margin:2rem 0;">
+      <a href="/?view=gallery" class="back-link">← Back to Gallery</a>
+      <div class="modal-hero detail-hero">
         {{if .DetailCar.Image}}
           <img class="modal-hero-img" src="/static/img/{{.DetailCar.Image}}" alt="{{.DetailCar.Name}}">
         {{end}}
-        <div class="modal-hero-content" style="margin-top:1rem;">
+        <div class="modal-hero-content detail-hero-content">
           <div class="modal-category">{{.DetailCar.Category.Name}}</div>
           <div class="modal-name">{{.DetailCar.Name}}</div>
         </div>
       </div>
-      <div class="modal-body" style="margin:2rem 0;">
-        <div class="modal-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.5rem;margin:2rem 0;">
+      <div class="modal-body detail-body">
+        <div class="modal-grid detail-grid">
           <div class="modal-stat">
             <div class="modal-stat-label">Horsepower</div>
             <div class="modal-stat-value big">{{.DetailCar.Specifications.Horsepower}}</div>
@@ -336,10 +335,10 @@
           </div>
         </div>
         {{if .DetailCar.Manufacturer}}
-        <div class="modal-maker-section" style="margin:2rem 0;padding:1.5rem;background:var(--bg-secondary);border-radius:8px;">
+        <div class="modal-maker-section maker-section">
           <div class="modal-maker-title">MANUFACTURER</div>
-          <div class="modal-maker-name" style="font-size:1.75rem;margin:0.5rem 0;">{{.DetailCar.Manufacturer.Name}}</div>
-          <div class="modal-maker-meta" style="font-size:0.9rem;color:var(--text-dim);">
+          <div class="modal-maker-name maker-heading">{{.DetailCar.Manufacturer.Name}}</div>
+          <div class="modal-maker-meta maker-info">
             {{.DetailCar.Manufacturer.Country}} · Est. {{.DetailCar.Manufacturer.FoundingYear}}
           </div>
         </div>

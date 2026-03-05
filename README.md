@@ -3,6 +3,45 @@
 MOTORIA is a Go web application that renders car data in HTML views and also exposes JSON endpoints.
 It loads data from a separate Node.js API service.
 
+## Usage Guide
+
+Once the app is running on `http://localhost:8080`, you can explore these features:
+
+### **🚗 Fleet Gallery** (Default View)
+Browse all available car models in a grid layout with filtering options:
+- **Search**: Find cars by model name, engine type, or drivetrain
+- **Filter by Category**: Select vehicle type (e.g., SUV, Sedan, Truck)
+- **Filter by Manufacturer**: Choose a specific car maker
+- **Filter by Horsepower**: Set min/max HP range to narrow results
+- **Sort Options**: Sort by horsepower, year, or name
+- Click any car to view full details
+
+### **📊 Compare** 
+Compare up to 3 vehicles side-by-side:
+- Select 3 vehicles from the dropdowns
+- View all specifications in a detailed comparison table
+- See highlighted best values for easy comparison
+
+### **🏭 Manufacturers**
+Explore all car manufacturers:
+- Browse a complete list of all manufacturers
+- View info: Country and founding year
+- See all models from each manufacturer with links to details
+
+### **🎯 Personalized Recommendations**
+Get cars tailored to your preferences:
+- Select preferred category (optional)
+- Set minimum horsepower requirement
+- Set maximum horsepower budget
+- Get ranked recommendations based on your filters
+
+### **📋 Car Details**
+View complete information about any vehicle:
+- Full specifications (engine, transmission, drivetrain)
+- Horsepower and year
+- Manufacturer details
+- High-quality car image
+
 ## How It Works
 
 - The Go app starts on `PORT` (default `8080`).
