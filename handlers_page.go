@@ -29,6 +29,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		maxHPStr := r.URL.Query().Get("maxHP")
 		sortBy := r.URL.Query().Get("sort")
 
+		if q != "" || categoryStr != "" || manufacturerStr != "" || minHPStr != "" || maxHPStr != "" {
+			recordSearch(q, "page:gallery")
+		}
+
 		if minHPStr == "" {
 			minHPStr = "0"
 		}
@@ -117,16 +121,20 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle manufacturers view
 	if view == "manufacturers" {
-		data["Manufacturers"] = db.Manufacturers
-		for i, m := range db.Manufacturers {
+		manufacturers := make([]Manufacturer, len(db.Manufacturers))
+		copy(manufacturers, db.Manufacturers)
+
+		for i, m := range manufacturers {
 			var models []CarModel
 			for _, c := range db.CarModels {
 				if c.ManufacturerID == m.ID {
 					models = append(models, c)
 				}
 			}
-			db.Manufacturers[i].Models = models
+			manufacturers[i].Models = models
 		}
+
+		data["Manufacturers"] = manufacturers
 	}
 
 	// Handle recommendations view
@@ -142,12 +150,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 				Reason string
 			}
 
+			countsSnapshot := viewCounts.Snapshot()
+
 			var scored []ScoredCar
 			for _, car := range db.CarModels {
 				score := 0.0
 				reasons := []string{}
 
-				if vc, ok := viewCounts[car.ID]; ok {
+				if vc, ok := countsSnapshot[car.ID]; ok {
 					score += float64(vc) * 2
 					if vc > 0 {
 						reasons = append(reasons, "Popular choice")
@@ -244,12 +254,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			if err == nil {
 				car := carByID(id)
 				if car != nil {
-					viewCounts[id]++
 					type DetailedCar struct {
 						CarModel
 						Manufacturer *Manufacturer
 						Category     *Category
 					}
+					recordView(id, "page:detail")
 					data["DetailCar"] = DetailedCar{
 						CarModel:     *car,
 						Manufacturer: manufacturerByID(car.ManufacturerID),

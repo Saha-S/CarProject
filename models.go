@@ -2,6 +2,52 @@ package main
 
 import "html/template"
 
+type viewCounterStore struct {
+	incrementCh chan int
+	snapshotCh  chan viewCountSnapshotReq
+}
+
+type viewCountSnapshotReq struct {
+	resp chan map[int]int
+}
+
+func newViewCounterStore() *viewCounterStore {
+	store := &viewCounterStore{
+		incrementCh: make(chan int),
+		snapshotCh:  make(chan viewCountSnapshotReq),
+	}
+
+	go store.run()
+	return store
+}
+
+func (s *viewCounterStore) run() {
+	counts := make(map[int]int)
+
+	for {
+		select {
+		case id := <-s.incrementCh:
+			counts[id]++
+		case req := <-s.snapshotCh:
+			snapshot := make(map[int]int, len(counts))
+			for id, c := range counts {
+				snapshot[id] = c
+			}
+			req.resp <- snapshot
+		}
+	}
+}
+
+func (s *viewCounterStore) Increment(id int) {
+	s.incrementCh <- id
+}
+
+func (s *viewCounterStore) Snapshot() map[int]int {
+	resp := make(chan map[int]int)
+	s.snapshotCh <- viewCountSnapshotReq{resp: resp}
+	return <-resp
+}
+
 type Specifications struct {
 	Engine       string `json:"engine"`
 	Horsepower   int    `json:"horsepower"`
@@ -38,7 +84,8 @@ type Database struct {
 	CarModels     []CarModel     `json:"carModels"`
 }
 
-var viewCounts = map[int]int{}
+var viewCounts = newViewCounterStore()
+var appEvents = newEventBus(256)
 var db Database
 var tmpl *template.Template
 var apiBaseURL string

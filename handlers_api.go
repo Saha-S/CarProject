@@ -26,18 +26,19 @@ func apiModelByID(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
-	car := carByID(id)
-	if car == nil {
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	}
-	viewCounts[id]++
 
 	type DetailedCar struct {
 		CarModel
 		Manufacturer *Manufacturer `json:"manufacturer"`
 		Category     *Category     `json:"category"`
 	}
+	car := carByID(id)
+	if car == nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	recordView(id, "api:model_detail")
 	jsonResponse(w, DetailedCar{
 		CarModel:     *car,
 		Manufacturer: manufacturerByID(car.ManufacturerID),
@@ -140,12 +141,14 @@ func apiRecommendations(w http.ResponseWriter, r *http.Request) {
 		Reason string   `json:"reason"`
 	}
 
+	countsSnapshot := viewCounts.Snapshot()
+
 	var scored []ScoredCar
 	for _, car := range db.CarModels {
 		score := 0.0
 		reasons := []string{}
 
-		if vc, ok := viewCounts[car.ID]; ok {
+		if vc, ok := countsSnapshot[car.ID]; ok {
 			score += float64(vc) * 2
 			if vc > 0 {
 				reasons = append(reasons, "Popular choice")
@@ -205,6 +208,10 @@ func apiSearch(w http.ResponseWriter, r *http.Request) {
 	minYearStr := r.URL.Query().Get("minYear")
 	maxYearStr := r.URL.Query().Get("maxYear")
 	sortBy := r.URL.Query().Get("sort")
+
+	if q != "" || categoryStr != "" || manufacturerStr != "" || minHPStr != "" || maxHPStr != "" || minYearStr != "" || maxYearStr != "" {
+		recordSearch(q, "api:search")
+	}
 
 	type EnrichedCar struct {
 		CarModel
