@@ -15,11 +15,28 @@ func jsonResponse(w http.ResponseWriter, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
+func requireGET(w http.ResponseWriter, r *http.Request) bool {
+	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", http.MethodGet)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return false
+	}
+	return true
+}
+
 func apiModels(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	jsonResponse(w, db.CarModels)
 }
 
 func apiModelByID(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/models/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -47,10 +64,18 @@ func apiModelByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiManufacturers(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	jsonResponse(w, db.Manufacturers)
 }
 
 func apiManufacturerByID(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/manufacturers/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -73,10 +98,18 @@ func apiManufacturerByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiCategories(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	jsonResponse(w, db.Categories)
 }
 
 func apiCategoryByID(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -98,6 +131,10 @@ func apiCategoryByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiCompare(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	idsValues := r.URL.Query()["ids"]
 	if len(idsValues) == 0 {
 		http.Error(w, "ids param required", http.StatusBadRequest)
@@ -131,6 +168,10 @@ func apiCompare(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiRecommendations(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	categoryStr := r.URL.Query().Get("category")
 	minHPStr := r.URL.Query().Get("minHP")
 	maxHPStr := r.URL.Query().Get("maxHP")
@@ -200,6 +241,10 @@ func apiRecommendations(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiSearch(w http.ResponseWriter, r *http.Request) {
+	if !requireGET(w, r) {
+		return
+	}
+
 	q := strings.ToLower(r.URL.Query().Get("q"))
 	categoryStr := r.URL.Query().Get("category")
 	manufacturerStr := r.URL.Query().Get("manufacturer")
