@@ -159,3 +159,55 @@ API_PORT=3001 API_BASE_URL=http://localhost:3001 ./start.sh
 ```
 
 - If static pages open but data is missing, verify the API server is running and reachable.
+
+## Review Q&A
+
+**Q: What does this project do?**  
+MOTORIA is a web app that lets you browse, search, filter, and compare cars.  
+It has a Go web server that renders HTML pages and also provides JSON API endpoints.  
+Car data (models, manufacturers, categories) is fetched from a separate Node.js API service.
+
+**Q: Why are there two servers — Go and Node.js?**  
+The Node.js server acts as a simple data API that serves car information from a JSON file.  
+The Go server reads that data at startup, caches it in memory, and handles all user requests.  
+This separation keeps the data layer simple and the main app logic cleanly in Go.
+
+**Q: What is a goroutine?**  
+A goroutine is a lightweight thread managed by Go's runtime, not the operating system.  
+You start one with the `go` keyword and it runs concurrently alongside the rest of your program.  
+This project uses goroutines for the event system and the view-counter store.
+
+**Q: What is a channel in Go?**  
+A channel is a pipe that lets goroutines safely send and receive values to each other.  
+It prevents data races by ensuring only one goroutine accesses the shared data at a time.  
+In this project, channels are used to update view counts and pass events between goroutines.
+
+**Q: What is the async event system and why is it used?**  
+When a user views a car or performs a search, the handler sends an event into a buffered channel instead of doing the work itself.  
+A background goroutine reads from that channel and processes the event (e.g., incrementing a view count).  
+This keeps HTTP handlers fast and avoids blocking user requests on background work.
+
+**Q: How is concurrency safety handled in this project?**  
+The `viewCounterStore` in `models.go` owns the view-count map and is the only goroutine allowed to read or write it.  
+Other goroutines communicate with it by sending messages over channels — they never touch the map directly.  
+This pattern eliminates data races without needing mutexes or locks.
+
+**Q: What are the main routes in the app?**  
+`GET /` serves the main HTML page; the active view (gallery, detail, compare, recommendations, manufacturers) is controlled by query parameters.  
+`GET /api/*` endpoints return JSON data for models, search, compare, and recommendations.  
+`GET /static/img/*` proxies car images from the Node.js API so the browser only talks to the Go server.
+
+**Q: How does the image proxy work?**  
+When a browser requests `/static/img/<path>`, the Go server fetches the image from the Node.js API.  
+It streams the image bytes directly back to the browser without saving it to disk.  
+This hides the internal API URL from the browser and centralizes all traffic through the Go server.
+
+**Q: How do you run the project?**  
+Make sure Go 1.21+ and Node.js 18+ are installed, then run `./start.sh` from the project root.  
+That script starts the Node.js API on port 3000 and the Go app on port 8080 at the same time.  
+Open `http://localhost:8080` in your browser to use the app.
+
+**Q: How does the recommendation feature work?**  
+The user picks an optional category and a horsepower range (min and max) in the UI.  
+The Go API filters all car models that match those preferences.  
+It then sorts and returns the matching cars ranked by how often they have been viewed.
